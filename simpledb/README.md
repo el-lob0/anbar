@@ -32,35 +32,39 @@ use simple_db::SimpleDB;
 find save file, or create one
 ```rust
 let mut database = SimpleDB::find_database("db3.txt");
-let mut db = database.unwrap(); // this or handle the error
-```
-You have to ``.to_string()`` input values.
-Like so:
-```rust
-database.insert_into_db(key, value); // add key value pair to database
-```
-get value by id (key)
-```rust
-database.get_value_from_db(key)
+let mut db = database.unwrap(); // this or handle the error with a match/if
 ```
 
-delete value by key
+Keys and values are of type `String`
 ```rust
-database.delete_from_db(key)
+db.insert_into_db(key, value);
+// Adds key value pair or modifies value of key if it already exists
 ```
 
-sort the database
+Get value by id (key)
+```rust
+db.get_value_from_db(key)
+// returns and option, so None if the key doesnt exist.
+```
+
+Delete value by key
+```rust
+db.delete_from_db(key)
+// returns and option, so None if the key doesnt exist.
+```
+
+Sort the database
 ```rust
 db.sort_by_key();
 db.sort_by_value();
 ```
 
-to edit the data yourself:
+To access the Indexmap yourself:
 ```rust
 db.data... // the data here is an indexmap of string: string
 ```
 
-print db 
+Display db in the terminal 
 ```rust
 db.print_db()
 ```
