@@ -1,7 +1,6 @@
 [package]
-name = "libtest"
+name = "example"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-simple_db = { path = "../../simpledb" }

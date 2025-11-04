@@ -1,4 +1,3 @@
-
 use anyhow::{Context, Result};
 use indexmap::IndexMap;
 use std::fs::{OpenOptions, File};
@@ -6,20 +5,27 @@ use std::io::{Write, BufReader, BufRead}; // self ?
 use std::path::Path;
 
 
+
 pub struct SimpleDB {
     pub data: IndexMap<String, String>, 
     filename: String, // so the struct can be imported from a file
 }
 
+
+
 impl SimpleDB {
-    pub fn find_database(file_name: &str) -> Result<Self> {
+    
+    /// Fetches the database at the specified path, 
+    /// Or creates it if it doesn't exist.
+    pub fn database(filepath: &str) -> Result<Self> {
         let mut data_base = SimpleDB {
             data: IndexMap::new(),
-            filename: file_name.to_string(),
+            filename: filepath.to_string(),
         };
         data_base.load_data_from_file()?;
         Ok(data_base)
     }
+
 
     fn load_data_from_file(&mut self) -> Result<()> {
         if !Path::new(&self.filename).exists() {
@@ -41,6 +47,7 @@ impl SimpleDB {
         Ok(())
     }
     
+
     pub fn save_data_to_file(&self) -> Result<()> {
         let mut file = OpenOptions::new()
             .write(true)
@@ -56,16 +63,22 @@ impl SimpleDB {
         Ok(())
     }
 
-    pub fn insert_into_db(&mut self, key: String, value: String) -> Result<()> {
-        self.data.insert(key, value);
+
+    /// Insert a piece of data in the database, as a key/value pair.
+    pub fn insert(&mut self, key: &str, value: &str) -> Result<()> {
+        self.data.insert(key.to_string(), value.to_string());
         self.save_data_to_file().with_context(|| "Failed to save data after insertion")?;
         Ok(())
     }
 
-    pub fn get_value_from_db(&self, key: &str) -> Option<&String> {
+
+    /// Get the value stored at a given key
+    pub fn get(&self, key: &str) -> Option<&String> {
         self.data.get(key)
     }
 
+    
+    /// Sort the database by keys
     pub fn sort_by_key(&mut self) -> Result<(), String> {
         if self.data.is_empty() {
             return Err("Database is empty. No sorting needed.".to_string());
@@ -86,6 +99,8 @@ impl SimpleDB {
         Ok(())
     }
 
+    
+    /// Sort the database by its values
     pub fn sort_by_value(&mut self) -> Result<(), String> {
         if self.data.is_empty() {
             return Err("Database is empty. No sorting needed.".to_string());
@@ -106,7 +121,9 @@ impl SimpleDB {
         Ok(())
     }
 
-    pub fn delete_from_db(&mut self, key: &str) -> Result<()> {
+    
+    /// Delete a value at a specified key
+    pub fn delete(&mut self, key: &str) -> Result<()> {
         if self.data.shift_remove(key).is_none() {
             anyhow::bail!("Key '{}' does not exist in the database", key);
         }
@@ -115,7 +132,9 @@ impl SimpleDB {
         Ok(())
     }
 
-    pub fn print_db(&self) {
+    
+    /// Display the database in the tty, mostly for debugging
+    pub fn display(&self) {
         for (key, value) in &self.data {
             println!("{}: {}", key, value);
         }

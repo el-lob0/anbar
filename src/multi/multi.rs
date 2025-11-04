@@ -48,7 +48,7 @@ pub enum DataStoreError {
 
 
 
-pub struct ColonDB {
+pub struct ColumnDB {
     pub data: IndexMap<String, Vec<String>>, 
     filename: String, 
 }
@@ -56,10 +56,12 @@ pub struct ColonDB {
 
 
 
-impl ColonDB {
+impl ColumnDB {
 
-    pub fn find_database(file_name: &str) -> Self {
-        let mut data_base = ColonDB {
+    /// Fetches the database at the specified path, 
+    /// Or creates it if it doesn't exist.
+    pub fn database(file_name: &str) -> Self {
+        let mut data_base = ColumnDB {
             data: IndexMap::new(),
             filename: file_name.to_string(),
         };
@@ -68,6 +70,11 @@ impl ColonDB {
     }
 
 
+
+
+
+    /// This sets the column with the header `key` as the column containing the keys (aka row
+    /// identifiers). 
     fn column_name_toindex(&self, column: &str, header: &[String]) -> Option<usize> {
         if column == "key" {
             return Some(0); 
@@ -75,7 +82,6 @@ impl ColonDB {
 
         header.iter().position(|col| col == column).map(|idx| idx + 1)
     }
-
 
     fn load_data_from_file(&mut self) -> Result<(), DataStoreError> {
         if !Path::new(&self.filename).exists() {
@@ -119,6 +125,8 @@ impl ColonDB {
     }
 
 
+    /// Probably the first function to use.
+    /// Sets the header, aka column names.
     pub fn set_header(&mut self, key: String, values: Vec<String>) -> Result<(), DataStoreError> {
         if values.is_empty() {
             return Err(DataStoreError::InvalidHeader {
@@ -128,7 +136,7 @@ impl ColonDB {
         }
 
         if self.data.contains_key(&key) {
-            self.data.remove(&key);
+            self.data.swap_remove(&key);
         }
 
         let mut new_data = IndexMap::new();
@@ -145,7 +153,8 @@ impl ColonDB {
     }
 
 
-    pub fn insert_item_into_db(
+    /// Inserts or edits a value at a given row and column
+    pub fn insert(
         &mut self, 
         key: String, 
         column: String, 
@@ -174,7 +183,8 @@ impl ColonDB {
     }
 
 
-    pub fn append_row_to_db(
+    /// Appends a new key paired with its entries for each column
+    pub fn add_row(
         &mut self, 
         key: String, 
         entry_vec: Vec<String>
@@ -186,6 +196,7 @@ impl ColonDB {
     }
 
     
+    /// You guessed it, it deletes a row.
     pub fn delete_row(&mut self, key: &str) -> Result<(), DataStoreError>  {
         if self.data.remove(key).is_some() {
             let _ = self.save_data_to_file();
@@ -197,6 +208,7 @@ impl ColonDB {
     }
     
 
+    /// Get an item by a key and column name
     pub fn get_item(
         &self, 
         key: &str, 
@@ -223,7 +235,8 @@ impl ColonDB {
     }
     
 
-    pub fn append_column(&mut self, column_name: String, default_value: String) -> Result<(), DataStoreError> {
+    /// Appends a new column to the database, setting a provided default value for every key  
+    pub fn add_col(&mut self, column_name: String, default_value: String) -> Result<(), DataStoreError> {
         let mut header = self.data.values().next().cloned().unwrap_or_default();
         
         if header.contains(&column_name) {
@@ -248,11 +261,12 @@ impl ColonDB {
     }
 
 
-    pub fn select_data(
+    /// Returns a new database of a selected range of rows and selected columns
+    pub fn select(
         &self,
         row_range: Option<std::ops::Range<usize>>,
         column_range: Option<Vec<String>>,
-    ) -> Result<ColonDB, DataStoreError> {
+    ) -> Result<ColumnDB, DataStoreError> {
         let header: Vec<String> = self.data.values().next().cloned().unwrap_or_default();
         let mut result = Vec::new();
 
@@ -311,7 +325,7 @@ impl ColonDB {
             result.push((key.clone(), selected_columns));
         }
 
-        let mut new_db = ColonDB {
+        let mut new_db = ColumnDB {
             data: IndexMap::new(),
             filename: self.filename.clone(),
         };
@@ -323,8 +337,9 @@ impl ColonDB {
         Ok(new_db)
     }
 
-    
-    pub fn print_database(&self) {
+
+    /// Display the db in the tty, mostly for debugging.
+    pub fn display(&self) {
         for (key, row) in &self.data {
             let mut line = format!("{key} || "); 
             

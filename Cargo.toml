@@ -1,0 +1,19 @@
+[package]
+name = "anbar"
+version = "0.1.0"
+edition = "2021"
+authors = ["Anas <anassmhs28@gmail.com>"]
+description = "A simple local database solution crate."
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/el-lob0/anbar"
+readme = "README.md"
+
+[dependencies]
+anyhow = "1.0.100"
+indexmap = "2.12.0"
+thiserror = "2.0.17"
+
+
+[lib]
+name = "anbar"
+path = "src/lib.rs"
