@@ -1,11 +1,20 @@
-## file based data base lib for rust
+# Rust crate for local database storage
 
-check readme's for both libs <br>
+-# This is a fork of (brudb)[https://github.com/AnasDEV2005/brudb.git]
 
-simpledb for simple key value storage (unindexed)
-<br>
-colondb has multiple column support <br>
-first row containing the header columns
-you can use header of each column to collect data frol that column, more on that in the readme
+---
 
+# Functionality:
+
+This crate consists of 2 main structs; `ColumnDB` and `SimpleDB`.  
+SimpleDB is a simple 2 column key value storage solution. You can create files, add keys, values delete them, edit them.  
+While ColumnDB is for storing data with multiple columns. In addition to what is doable in SImpleDB, you can also add full rows and columns, select a certain range to make a new database, and delete rows or columns.  
+
+---
+
+# Doc
+
+(wip)  
+  
+Also read the `example/src/main.rs` for a better idea of functionality.
 
